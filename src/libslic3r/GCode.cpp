@@ -8,6 +8,7 @@
 #include "GCode/PrintExtents.hpp"
 #include "GCode/Thumbnails.hpp"
 #include "GCode/WipeTower.hpp"
+#include "GCode/SmallAreaInfillFlowCompensator.hpp"
 #include "ShortestPath.hpp"
 #include "PrintConfig.hpp"
 #include "Utils.hpp"
@@ -5496,15 +5497,28 @@ std::vector<double> cut_corner_cache = {
     0.381436735764648,0.398363940736199,0.416256777189962,0.435193636891737,0.455261618934834 };
 
 
-void GCode::_extrude_line(std::string& gcode_str, const Line& line, const double e_per_mm, const std::string& comment) {
+void GCode::_extrude_line(std::string& gcode_str, const Line& line, const double e_per_mm, const std::string& comment,
+                          ExtrusionRole role) {
     if (line.a.coincides_with_epsilon(line.b)) {
         assert(false); // todo: investigate if it happens (it happens in perimeters)
         return;
     }
+    std::string comment_copy = comment;
+    double unscaled_line_length = unscaled(line.length());
+    double extrusion_value = e_per_mm * unscaled_line_length;
+    if (m_small_area_infill_flow_compensator && m_config.small_area_infill_flow_compensation.value) {
+        double new_extrusion_value = m_small_area_infill_flow_compensator ->modify_flow(unscaled_line_length, extrusion_value, role);
+        if (new_extrusion_value > 0.0 && new_extrusion_value != extrusion_value) {
+            extrusion_value = new_extrusion_value;
+            if (m_config.gcode_comments) {
+                comment_copy += Slic3r::format(_(L(" | Old Flow Value: %0.5f Length: %0.5f")), extrusion_value, unscaled_line_length);
+            }
+        }
+    }
     gcode_str += m_writer.extrude_to_xy(
         this->point_to_gcode(line.b),
-        e_per_mm * unscaled(line.length()),
-        comment);
+        extrusion_value,
+        comment_copy);
 }
 
 void GCode::_extrude_line_cut_corner(std::string& gcode_str, const Line& line, const double e_per_mm, const std::string& comment, Point& last_pos, const double path_width) {
@@ -5604,6 +5618,11 @@ std::string GCode::_extrude(const ExtrusionPath &path, const std::string &descri
             comment);
     };
 
+    if (m_config.small_area_infill_flow_compensation.value &&
+        !m_config.small_area_infill_flow_compensation_model.empty()) {
+        m_small_area_infill_flow_compensator = std::make_unique<SmallAreaInfillFlowCompensator>(m_config);
+    }
+
     // calculate extrusion length per distance unit
     double e_per_mm = path.mm3_per_mm
         * m_writer.tool()->e_per_mm3()
@@ -5623,7 +5642,7 @@ std::string GCode::_extrude(const ExtrusionPath &path, const std::string &descri
             for (const Line& line : path.polyline.lines()) {
                 if (path.role() != erExternalPerimeter || config().external_perimeter_cut_corners.value == 0) {
                     // normal & legacy pathcode
-                    _extrude_line(gcode, line, e_per_mm, comment);
+                    _extrude_line(gcode, line, e_per_mm, comment, path.role());
                 } else {
                     _extrude_line_cut_corner(gcode, line, e_per_mm, comment, last_pos, path.width);
                 }
@@ -5641,7 +5660,7 @@ std::string GCode::_extrude(const ExtrusionPath &path, const std::string &descri
                         const Line line = Line(path.polyline.get_points()[point_index - 1], path.polyline.get_points()[point_index]);
                         if (path.role() != erExternalPerimeter || config().external_perimeter_cut_corners.value == 0) {
                             // normal & legacy pathcode
-                            _extrude_line(gcode, line, e_per_mm, comment);
+                            _extrude_line(gcode, line, e_per_mm, comment, path.role());
                         } else {
                             _extrude_line_cut_corner(gcode, line, e_per_mm, comment, last_pos, path.width);
                         }

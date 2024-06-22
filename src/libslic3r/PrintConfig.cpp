@@ -2504,6 +2504,30 @@ void PrintConfigDef::init_fff_params()
     def->sidetext = L("%");
     def->set_default_value(new ConfigOptionPercent(10));
 
+    def = this->add("small_area_infill_flow_compensation", coBool);
+    def->label = L("Enable small area flow compensation");
+    def->category = OptionCategory::infill;
+    def->tooltip = L("Enable flow compensation for small infill areas");
+    def->mode = comExpert | comSuSi;
+    def->set_default_value(new ConfigOptionBool(false));
+
+    def = this->add("small_area_infill_flow_compensation_model", coStrings);
+    def->label = L("Flow Compensation Model");
+    def->category = OptionCategory::infill;
+    def->tooltip = L("Flow Compensation Model, used to adjust the flow for small infill "
+                     "areas. The model is expressed as a comma separated pair of values for "
+                     "extrusion length and flow correction factors, one per line, in the "
+                     "following format: \"1.234,5.678\"");
+    def->mode = comExpert | comSuSi;
+    def->gui_flags = "serialized";
+    def->multiline = true;
+    def->full_width = false;
+    def->height = 15;
+    def->set_default_value(new ConfigOptionStrings{
+        "0,0", "0.2,0.4444", "0.4,0.6145", "0.6,0.7059", "0.8,0.7619", "1.5,0.8571",
+        "2,0.8889", "3,0.9231", "5,0.9520", "10,1"
+    });
+
     def = this->add("first_layer_acceleration", coFloatOrPercent);
     def->label = L("Max");
     def->full_label = L("First layer acceleration");
@@ -8249,6 +8273,8 @@ std::unordered_set<std::string> prusa_export_to_remove_keys = {
 "skirt_brim",
 "skirt_distance_from_brim",
 "skirt_extrusion_width",
+"small_area_infill_flow_compensation"
+"small_area_infill_flow_compensation_model"
 "small_perimeter_max_length",
 "small_perimeter_min_length",
 "solid_fill_pattern",

@@ -141,6 +141,8 @@ add_library(libslic3r STATIC
     GCode/GCodeProcessor.hpp
     GCode/AvoidCrossingPerimeters.cpp
     GCode/AvoidCrossingPerimeters.hpp
+    GCode/SmallAreaInfillFlowCompensator.cpp
+    GCode/SmallAreaInfillFlowCompensator.hpp
     GCode.cpp
     GCode.hpp
     GCodeReader.cpp

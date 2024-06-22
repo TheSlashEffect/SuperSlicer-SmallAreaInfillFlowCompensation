@@ -378,6 +378,9 @@ void ConfigManipulation::toggle_print_fff_options(DynamicPrintConfig* config)
 
     toggle_field("perimeter_loop_seam", config->opt_bool("perimeter_loop"));
 
+    bool have_small_area_infill_flow_compensation = config->opt_bool("small_area_infill_flow_compensation");
+    toggle_field("small_area_infill_flow_compensation_model", have_small_area_infill_flow_compensation);
+
     bool have_notch = have_perimeters && (config->option("seam_notch_all")->get_float() != 0 ||
                                           config->option("seam_notch_inner")->get_float() != 0 ||
                                           config->option("seam_notch_outer")->get_float() != 0);

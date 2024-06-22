@@ -723,7 +723,8 @@ static std::vector<std::string> s_Preset_print_options {
         "milling_speed",
         //Arachne
         "perimeter_generator", "wall_transition_length", "wall_transition_filter_deviation", "wall_transition_angle",
-        "wall_distribution_count", "min_feature_size", "min_bead_width"
+        "wall_distribution_count", "min_feature_size", "min_bead_width",
+        "small_area_infill_flow_compensation", "small_area_infill_flow_compensation_model"
 };
 
 static std::vector<std::string> s_Preset_filament_options {

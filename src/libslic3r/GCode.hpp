@@ -20,6 +20,7 @@
 #include "GCode/SeamPlacer.hpp"
 #include "GCode/GCodeProcessor.hpp"
 #include "GCode/ThumbnailData.hpp"
+#include "GCode/SmallAreaInfillFlowCompensator.hpp"
 
 #include <memory>
 #include <map>
@@ -485,6 +486,7 @@ private:
     std::unique_ptr<GCodeFindReplace>   m_find_replace;
     std::unique_ptr<PressureEqualizer>  m_pressure_equalizer;
     std::unique_ptr<WipeTowerIntegration> m_wipe_tower;
+    std::unique_ptr<SmallAreaInfillFlowCompensator> m_small_area_infill_flow_compensator;
 
     // Heights (print_z) at which the skirt has already been extruded.
     std::vector<coordf_t>               m_skirt_done;
@@ -515,7 +517,7 @@ private:
     std::function<void()> m_throw_if_canceled = [](){};
 
     std::string _extrude(const ExtrusionPath &path, const std::string &description, double speed = -1);
-    void _extrude_line(std::string& gcode_str, const Line& line, const double e_per_mm, const std::string& comment);
+    void _extrude_line(std::string& gcode_str, const Line& line, const double e_per_mm, const std::string& comment, ExtrusionRole role);
     void _extrude_line_cut_corner(std::string& gcode_str, const Line& line, const double e_per_mm, const std::string& comment, Point& last_pos, const double path_width);
     std::string _before_extrude(const ExtrusionPath &path, const std::string &description, double speed = -1);
     double_t    _compute_speed_mm_per_sec(const ExtrusionPath& path, double speed = -1);

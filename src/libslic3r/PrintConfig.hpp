@@ -808,6 +808,7 @@ PRINT_CONFIG_CLASS_DEFINE(
     ((ConfigOptionFloat,                xy_size_compensation))
     ((ConfigOptionFloat,                xy_inner_size_compensation))
     ((ConfigOptionBool,                 wipe_into_objects))
+    ((ConfigOptionBool,                 small_area_infill_flow_compensation))
 )
 
 // This object is mapped to Perl as Slic3r::Config::PrintRegion.
@@ -1287,6 +1288,7 @@ PRINT_CONFIG_CLASS_DERIVED_DEFINE(
     ((ConfigOptionFloats,               wiping_volumes_extruders))
     ((ConfigOptionFloat,                z_offset))
     ((ConfigOptionFloat,                init_z_rotate))
+    ((ConfigOptionStrings,             small_area_infill_flow_compensation_model))
 
 )
 
