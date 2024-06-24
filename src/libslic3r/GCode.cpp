@@ -5506,7 +5506,7 @@ void GCode::_extrude_line(std::string& gcode_str, const Line& line, const double
     std::string comment_copy = comment;
     double unscaled_line_length = unscaled(line.length());
     double extrusion_value = e_per_mm * unscaled_line_length;
-    if (m_small_area_infill_flow_compensator && m_config.small_area_infill_flow_compensation.value) {
+	if (!this->on_first_layer() && m_small_area_infill_flow_compensator && m_config.small_area_infill_flow_compensation.value) {
         double new_extrusion_value = m_small_area_infill_flow_compensator ->modify_flow(unscaled_line_length, extrusion_value, role);
         if (new_extrusion_value > 0.0 && new_extrusion_value != extrusion_value) {
             extrusion_value = new_extrusion_value;
